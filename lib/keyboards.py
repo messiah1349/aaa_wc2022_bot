@@ -17,11 +17,11 @@ def make_not_registered_welcome_keyboard():
 
 def make_welcome_keyboard():
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-    # markup.add(menu_names.user_registration)
     markup.add(menu_names.show_matches)
     markup.add(menu_names.add_match)
     markup.add(menu_names.show_leaderboard)
     markup.add(menu_names.show_user_bets)
+    markup.add(menu_names.show_current_user_bets)
     return markup
 
 
@@ -34,6 +34,16 @@ def make_matches_keyboard(matches):
         markup.add(callback_button)
     return markup
 
+
+def make_user_bets_keyboard(clients):
+    markup = types.InlineKeyboardMarkup()
+    for client in clients:
+        telegram_id = client[0]
+        name = client[1]
+        callback_data = f"telegram_id={telegram_id}"
+        callback_button = types.InlineKeyboardButton(text=name, callback_data=callback_data)
+        markup.add(callback_button)
+    return markup
 
 def make_sub_matches_keyboard():
     markup = types.ReplyKeyboardMarkup()
@@ -65,3 +75,4 @@ def make_bet_keyboard(match):
     markup.add(away_button)
 
     return markup
+

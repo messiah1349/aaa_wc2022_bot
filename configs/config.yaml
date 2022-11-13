@@ -15,3 +15,4 @@ menu_naming:
   show_user_bets: Показать ваши ставки
   add_match: Добавить матч
   show_match_bets: Показать ставки игроков на этот матч
+  show_current_user_bets: Показать ставки игрока

@@ -109,6 +109,7 @@ class PlayerProcessor(TableProcessor):
         with Session(self._engine) as session:
 
             query = session.query(self.table_model).with_entities(
+                    getattr(self.table_model, 'telegram_id'),
                     getattr(self.table_model, 'name'),
                     getattr(self.table_model, 'money')
             ).order_by(getattr(self.table_model, 'money').desc(), getattr(self.table_model, 'name'))

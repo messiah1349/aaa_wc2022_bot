@@ -4,8 +4,9 @@ import telebot
 from datetime import datetime
 from backend import Backend
 import keyboards as kb
+import print_functions as pf
 from dataclasses import dataclass
-import pandas as pd
+
 
 ROOT_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(ROOT_DIR)
@@ -62,24 +63,30 @@ def process_start_menu(message):
         case menu_names.show_matches:
             matches = backend.get_all_matches()
             markup = kb.make_matches_keyboard(matches)
-            bot.send_message(chat_id, "выбери матч", reply_markup=markup)
+            bot.send_message(chat_id, "Выбери матч:", reply_markup=markup)
             # handle by process_matches function
             return
         case menu_names.add_match:
-            msg = bot.reply_to(message, '''напиши матч в формате - "Аргентина Ямайка 11 12 15 00"''')
+            msg = bot.reply_to(message, '''Напиши матч в формате - "Аргентина Ямайка 11 12 15 00"''')
             bot.register_next_step_handler(msg, process_add_match)
             return
         case menu_names.show_leaderboard:
             leaderboard = backend.get_players().answer
-            leaderboard = print_leaderboard(leaderboard)
+            leaderboard = pf.print_leaderboard(leaderboard)
             bot.send_message(chat_id, leaderboard)
             send_welcome(message)
             return
         case menu_names.show_user_bets:
             bets = backend.show_user_bets(chat_id).answer
-            bets_text = print_bets(bets) if bets else 'у вас еще нет ставок'
+            bets_text = pf.print_bets(bets) if bets else 'У вас еще нет ставок'
             bot.send_message(chat_id, bets_text)
             send_welcome(message)
+            return
+        case menu_names.show_current_user_bets:
+            clients = backend.get_players().answer
+            markup = kb.make_user_bets_keyboard(clients)
+            bot.send_message(chat_id, "Выбери игрока:", reply_markup=markup)
+            # send_welcome(message)
             return
 
     markup = kb.make_welcome_keyboard()
@@ -96,6 +103,16 @@ def process_matches(call):
     markup = kb.make_sub_matches_keyboard()
     msg = bot.send_message(chat_id, text_output, reply_markup=markup)
     bot.register_next_step_handler(msg, process_match, match_id=match_id)
+
+
+@bot.callback_query_handler(func=lambda call: bool(call.message) and call.data.startswith('telegram_id='))
+def process_players(call):
+    chat_id = call.message.chat.id
+    telegram_id = int(call.data.split('=')[1])
+    bets = backend.show_user_bets(telegram_id).answer
+    text_output = pf.print_bets(bets)
+    bot.send_message(chat_id, text_output)
+    send_welcome(call.message)
 
 
 def process_match(message, match_id):
@@ -121,7 +138,7 @@ def process_match(message, match_id):
             return
         case menu_names.show_match_bets:
             bets = backend.show_match_bets(match_id).answer
-            send_text = print_match_bets(bets) if bets else "на этот матч еще никто никто ничего не поставил"
+            send_text = pf.print_match_bets(bets) if bets else "на этот матч еще никто никто ничего не поставил"
             bot.send_message(chat_id, send_text)
             send_welcome(message)
             return
@@ -188,34 +205,6 @@ def process_refresh_score(message, match_id):
         return
 
 
-def print_bets(bets):
-    text_bets = ""
-    for row in bets:
-        text_bets += f"{row.home_team[:3]}-{row.away_team[:3]} \
-{row.home_prediction_score}:{row.away_prediction_score} bet={row.amount}\n"
-
-    return text_bets
-
-
-def print_match_bets(bets) -> str:
-    # output_text = ""
-    # for bet in bets:
-        # row = f"{bet.name:10} {bet.home_prediction_score}-{bet.away_prediction_score} {int(bet.amount):5d}руб"
-        # row = bet.name.rjust(10) + str(bet.home_prediction_score) + '-' + str(bet.away_prediction_score) + \
-        #       ' ' + str(int(bet.amount)).rjust(5) + 'руб'
-        # ?output_text = output_text + '\n' + row
-
-    df = pd.DataFrame(bets)
-    df.columns = ['игрок', 'счет1', 'счет2', 'ставка', 'дата']
-    df['дата'] = df['дата'].dt.strftime('%m/%d')
-    return repr(df)
-
-
-def print_leaderboard(leaderboard):
-    # print(leaderboard)
-    df = pd.DataFrame(leaderboard)
-    df.columns = ['Игрок', 'Деньги']
-    return df.to_string()
 
 
 def make_bet(message, match_id):
