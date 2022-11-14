@@ -45,19 +45,23 @@ def make_user_bets_keyboard(clients):
         markup.add(callback_button)
     return markup
 
+
+def make_sample_keyboard():
+    markup = types.InlineKeyboardMarkup()
+    return markup
+
 def make_sub_matches_keyboard():
     markup = types.ReplyKeyboardMarkup()
     button_make_bet = types.InlineKeyboardButton(text=menu_names.make_bet)
     button_refresh_score = types.InlineKeyboardButton(text=menu_names.refresh_score)
     button_refresh_rates = types.InlineKeyboardButton(text=menu_names.refresh_rates)
-    # button_show_match = types.InlineKeyboardButton(text=menu_names.show_match_info)
     button_show_bets = types.InlineKeyboardButton(text=menu_names.show_match_bets)
+    button_to_menu = types.InlineKeyboardButton(text=menu_names.back_to_menu)
     markup.add(button_make_bet)
     markup.add(button_refresh_score)
     markup.add(button_refresh_rates)
-    # markup.add(button_show_match)
     markup.add(button_show_bets)
-
+    markup.add(button_to_menu)
     return markup
 
 

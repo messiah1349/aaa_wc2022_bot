@@ -136,6 +136,10 @@ class PlayerProcessor(TableProcessor):
 
         return Response(0, 'user added')
 
+    def get_player_by_id(self, telegram_id: int) -> Response:
+        player_name = self._get_data_by_id(self.table_model, telegram_id, 'telegram_id').name
+        return Response(0, player_name)
+
     def get_amount_by_user(self, telegram_id: int) -> float:
         return self._get_data_by_id(self.table_model, telegram_id, 'telegram_id').money
 
@@ -280,6 +284,12 @@ class BetProcessor(TableProcessor):
                 .filter(getattr(self.table_model, 'match_id') == match_id)
 
             return query
+
+    def get_bet_by_player_and_client_id(self, telegram_id: int, match_id: int):
+        with Session(self._engine) as session:
+            query = self._get_bet_query(telegram_id, match_id)
+            res = session.execute(query).fetchone()
+            return Response(0, res)
 
     def add_bet(self, telegram_id: int, match_id: int, amount: float, home_prediction_score: int,
                 away_prediction_score: int, bet_date: datetime) \
@@ -428,6 +438,11 @@ class Backend:
         response = client_processor.get_players()
         return response
 
+    def get_player_by_id(self, telegram_id: int):
+        client_processor = PlayerProcessor(self._engine)
+        response = client_processor.get_player_by_id(telegram_id)
+        return response
+
     def add_match(self, home_team: str, away_team: str, match_time: datetime):
         match_processor = MatchProcessor(self._engine)
         response = match_processor.add_match(home_team, away_team, match_time)
@@ -449,6 +464,11 @@ class Backend:
         response = bet_processor.add_bet(telegram_id, match_id, amount, home_prediction_score,
                                          away_prediction_score, bet_date)
 
+        return response
+
+    def get_bet_by_player_and_client_id(self, telegram_id: int, match_id: int):
+        bet_processor = BetProcessor(self._engine)
+        response = bet_processor.get_bet_by_player_and_client_id(telegram_id, match_id)
         return response
 
     def show_user_bets(self, telegram_id):

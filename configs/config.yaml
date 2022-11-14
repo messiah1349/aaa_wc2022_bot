@@ -5,6 +5,7 @@ initial_user_money: 10000
 predicted_score_coeff: 3
 
 menu_naming:
+  back_to_menu: В меню
   user_registration: Зарегистрироваться
   show_matches: Показать матчи
   show_match_info: Показать информацию о матче

@@ -1,6 +1,7 @@
 import os
 import sys
 import telebot
+from telebot.types import ReplyKeyboardRemove
 from datetime import datetime
 from backend import Backend
 import keyboards as kb
@@ -32,8 +33,15 @@ class ParsedBet:
     away_score: int
     amount: float
 
+@bot.message_handler(commands=['help'])
+def send_help(message):
+    chat_id = message.chat.id
+    help_message = "Если заблудишься жми /start"
+    bot.send_message(chat_id, help_message)
+    send_welcome(message)
 
-@bot.message_handler(commands=['help', 'start'])
+
+@bot.message_handler(commands=['start'])
 def send_welcome(message):
     chat_id = message.chat.id
     user_existed_flg = backend.check_user_existence(chat_id).answer
@@ -97,9 +105,17 @@ def process_start_menu(message):
 @bot.callback_query_handler(func=lambda call: bool(call.message) and call.data.startswith('match_id='))
 def process_matches(call):
     chat_id = call.message.chat.id
+    message_text = call.message.text
+    message_id = call.message.id
+    edit_markup = kb.make_sample_keyboard()
+    bot.edit_message_text(text=message_text, chat_id=chat_id, message_id=message_id, reply_markup=edit_markup)
+
     match_id = int(call.data.split('=')[1])
     game = backend.get_match_by_id(match_id).answer
-    text_output = str(game) + '\n\nЧто сделать с этим матчем?'
+    player_bet = backend.get_bet_by_player_and_client_id(chat_id, match_id).answer
+    bet_text = "\nВаша ставка: "
+    bet_text += pf.print_bet(player_bet[0]) if player_bet else "еще не делали"
+    text_output = str(game) + bet_text + '\n\nЧто сделать с этим матчем?'
     markup = kb.make_sub_matches_keyboard()
     msg = bot.send_message(chat_id, text_output, reply_markup=markup)
     bot.register_next_step_handler(msg, process_match, match_id=match_id)
@@ -108,9 +124,16 @@ def process_matches(call):
 @bot.callback_query_handler(func=lambda call: bool(call.message) and call.data.startswith('telegram_id='))
 def process_players(call):
     chat_id = call.message.chat.id
+    message_text = call.message.text
+    message_id = call.message.id
+    edit_markup = kb.make_sample_keyboard()
+    bot.edit_message_text(text=message_text, chat_id=chat_id, message_id=message_id, reply_markup=edit_markup)
+
     telegram_id = int(call.data.split('=')[1])
+    player_name = backend.get_player_by_id(telegram_id).answer
     bets = backend.show_user_bets(telegram_id).answer
-    text_output = pf.print_bets(bets)
+    text_output = f'Ставки игрока {player_name}:\n\n'
+    text_output = text_output + pf.print_bets(bets)
     bot.send_message(chat_id, text_output)
     send_welcome(call.message)
 
@@ -118,28 +141,33 @@ def process_players(call):
 def process_match(message, match_id):
     chat_id = message.chat.id
     text = message.text
+    message_id = message.id
     # print("game = ", text)
     match text:
         case menu_names.make_bet:
             # match = backend.get_match_by_id(match_id).answer
             bet_text = "введте ставку в формате '1 3 500'\nгде первые 2 числа это счет, а последнне - ваша ставка"
-            msg = bot.send_message(chat_id, bet_text)
+            msg = bot.send_message(chat_id, bet_text, reply_markup=ReplyKeyboardRemove())
             bot.register_next_step_handler(msg, make_bet, match_id=match_id)
             return
         case menu_names.refresh_score:
             score_text = "Введите счет матча в формате '1 2'\nгде 2 числа это счет"
-            msg = bot.send_message(chat_id, score_text)
+            msg = bot.send_message(chat_id, score_text, reply_markup=ReplyKeyboardRemove())
             bot.register_next_step_handler(msg, process_refresh_score, match_id=match_id)
             return
         case menu_names.refresh_rates:
+            # bot.edit_message_text(text=text, message_id=message_id, chat_id=chat_id)
             rates_text = "Введите кэфы в формате '1.1 2.3 5'\nгде 3 числа это кэфы"
-            msg = bot.send_message(chat_id, rates_text)
+            msg = bot.send_message(chat_id, rates_text, reply_markup=ReplyKeyboardRemove())
             bot.register_next_step_handler(msg, process_refresh_rates, match_id=match_id)
             return
         case menu_names.show_match_bets:
             bets = backend.show_match_bets(match_id).answer
             send_text = pf.print_match_bets(bets) if bets else "на этот матч еще никто никто ничего не поставил"
             bot.send_message(chat_id, send_text)
+            send_welcome(message)
+            return
+        case menu_names.back_to_menu:
             send_welcome(message)
             return
 
@@ -284,7 +312,7 @@ def process_add_match(message):
         text = message.text
         splitted_text = text.split(" ")
         if len(splitted_text) != 6:
-            msg = bot.reply_to(message,
+            msg = bot.send_message(chat_id,
                     '''Неверно указал!\nНапиши матч в формате - "Аргентина Ямайка 11 12 15 00"''')
             bot.register_next_step_handler(msg, process_add_match)
             return
