@@ -4,6 +4,8 @@ test_bd_path: data/test.db
 initial_user_money: 10000
 predicted_score_coeff: 3
 
+admins_list: [46340594]
+
 menu_naming:
   back_to_menu: В меню
   user_registration: Зарегистрироваться
@@ -17,3 +19,752 @@ menu_naming:
   add_match: Добавить матч
   show_match_bets: Показать ставки игроков на этот матч
   show_current_user_bets: Показать ставки игрока
+
+flags:
+  AFG:
+    code2: AF
+    name: Afghanistan
+  ALA:
+    code2: AX
+    name: Åland Islands
+  ALB:
+    code2: AL
+    name: Albania
+  DZA:
+    code2: DZ
+    name: Algeria
+  ASM:
+    code2: AS
+    name: American Samoa
+  AND:
+    code2: AD
+    name: Andorra
+  AGO:
+    code2: AO
+    name: Angola
+  AIA:
+    code2: AI
+    name: Anguilla
+  ATA:
+    code2: AQ
+    name: Antarctica [a]
+  ATG:
+    code2: AG
+    name: Antigua and Barbuda
+  ARG:
+    code2: AR
+    name: Argentina
+  ARM:
+    code2: AM
+    name: Armenia
+  ABW:
+    code2: AW
+    name: Aruba
+  AUS:
+    code2: AU
+    name: Australia [b]
+  AUT:
+    code2: AT
+    name: Austria
+  AZE:
+    code2: AZ
+    name: Azerbaijan
+  BHS:
+    code2: BS
+    name: Bahamas (the)
+  BHR:
+    code2: BH
+    name: Bahrain
+  BGD:
+    code2: BD
+    name: Bangladesh
+  BRB:
+    code2: BB
+    name: Barbados
+  BLR:
+    code2: BY
+    name: Belarus
+  BEL:
+    code2: BE
+    name: Belgium
+  BLZ:
+    code2: BZ
+    name: Belize
+  BEN:
+    code2: BJ
+    name: Benin
+  BMU:
+    code2: BM
+    name: Bermuda
+  BTN:
+    code2: BT
+    name: Bhutan
+  BOL:
+    code2: BO
+    name: Bolivia (Plurinational State of)
+  BES:
+    code2: BQ
+    name: Bonaire
+  BIH:
+    code2: BA
+    name: Bosnia and Herzegovina
+  BWA:
+    code2: BW
+    name: Botswana
+  BVT:
+    code2: BV
+    name: Bouvet Island
+  BRA:
+    code2: BR
+    name: Brazil
+  IOT:
+    code2: IO
+    name: British Indian Ocean Territory (the)
+  BRN:
+    code2: BN
+    name: Brunei Darussalam [e]
+  BGR:
+    code2: BG
+    name: Bulgaria
+  BFA:
+    code2: BF
+    name: Burkina Faso
+  BDI:
+    code2: BI
+    name: Burundi
+  CPV:
+    code2: CV
+    name: Cabo Verde [f]
+  KHM:
+    code2: KH
+    name: Cambodia
+  CMR:
+    code2: CM
+    name: Cameroon
+  CAN:
+    code2: CA
+    name: Canada
+  CYM:
+    code2: KY
+    name: Cayman Islands (the)
+  CAF:
+    code2: CF
+    name: Central African Republic (the)
+  TCD:
+    code2: TD
+    name: Chad
+  CHL:
+    code2: CL
+    name: Chile
+  CHN:
+    code2: CN
+    name: China
+  CXR:
+    code2: CX
+    name: Christmas Island
+  CCK:
+    code2: CC
+    name: Cocos (Keeling) Islands (the)
+  COL:
+    code2: CO
+    name: Colombia
+  COM:
+    code2: KM
+    name: Comoros (the)
+  COD:
+    code2: CD
+    name: Congo (the Democratic Republic of the)
+  COG:
+    code2: CG
+    name: Congo (the) [g]
+  COK:
+    code2: CK
+    name: Cook Islands (the)
+  CRI:
+    code2: CR
+    name: Costa Rica
+  CIV:
+    code2: CI
+    name: Côte d'Ivoire [h]
+  HRV:
+    code2: HR
+    name: Croatia
+  CUB:
+    code2: CU
+    name: Cuba
+  CUW:
+    code2: CW
+    name: Curaçao
+  CYP:
+    code2: CY
+    name: Cyprus
+  CZE:
+    code2: CZ
+    name: Czechia [i]
+  DNK:
+    code2: DK
+    name: Denmark
+  DJI:
+    code2: DJ
+    name: Djibouti
+  DMA:
+    code2: DM
+    name: Dominica
+  DOM:
+    code2: DO
+    name: Dominican Republic (the)
+  ECU:
+    code2: EC
+    name: Ecuador
+  EGY:
+    code2: EG
+    name: Egypt
+  SLV:
+    code2: SV
+    name: El Salvador
+  GNQ:
+    code2: GQ
+    name: Equatorial Guinea
+  ERI:
+    code2: ER
+    name: Eritrea
+  EST:
+    code2: EE
+    name: Estonia
+  SWZ:
+    code2: SZ
+    name: Eswatini [j]
+  ETH:
+    code2: ET
+    name: Ethiopia
+  FLK:
+    code2: FK
+    name: Falkland Islands (the) [Malvinas] [k]
+  FRO:
+    code2: FO
+    name: Faroe Islands (the)
+  FJI:
+    code2: FJ
+    name: Fiji
+  FIN:
+    code2: FI
+    name: Finland
+  FRA:
+    code2: FR
+    name: France
+  GUF:
+    code2: GF
+    name: French Guiana
+  PYF:
+    code2: PF
+    name: French Polynesia
+  ATF:
+    code2: TF
+    name: French Southern Territories (the) [m]
+  GAB:
+    code2: GA
+    name: Gabon
+  GMB:
+    code2: GM
+    name: Gambia (the)
+  GEO:
+    code2: GE
+    name: Georgia
+  DEU:
+    code2: DE
+    name: Germany
+  GHA:
+    code2: GH
+    name: Ghana
+  GIB:
+    code2: GI
+    name: Gibraltar
+  GRC:
+    code2: GR
+    name: Greece
+  GRL:
+    code2: GL
+    name: Greenland
+  GRD:
+    code2: GD
+    name: Grenada
+  GLP:
+    code2: GP
+    name: Guadeloupe
+  GUM:
+    code2: GU
+    name: Guam
+  GTM:
+    code2: GT
+    name: Guatemala
+  GGY:
+    code2: GG
+    name: Guernsey
+  GIN:
+    code2: GN
+    name: Guinea
+  GNB:
+    code2: GW
+    name: Guinea-Bissau
+  GUY:
+    code2: GY
+    name: Guyana
+  HTI:
+    code2: HT
+    name: Haiti
+  HMD:
+    code2: HM
+    name: Heard Island and McDonald Islands
+  VAT:
+    code2: VA
+    name: Holy See (the) [n]
+  HND:
+    code2: HN
+    name: Honduras
+  HKG:
+    code2: HK
+    name: Hong Kong
+  HUN:
+    code2: HU
+    name: Hungary
+  ISL:
+    code2: IS
+    name: Iceland
+  IND:
+    code2: IN
+    name: India
+  IDN:
+    code2: ID
+    name: Indonesia
+  IRN:
+    code2: IR
+    name: Iran (Islamic Republic of)
+  IRQ:
+    code2: IQ
+    name: Iraq
+  IRL:
+    code2: IE
+    name: Ireland
+  IMN:
+    code2: IM
+    name: Isle of Man
+  ISR:
+    code2: IL
+    name: Israel
+  ITA:
+    code2: IT
+    name: Italy
+  JAM:
+    code2: JM
+    name: Jamaica
+  JPN:
+    code2: JP
+    name: Japan
+  JEY:
+    code2: JE
+    name: Jersey
+  JOR:
+    code2: JO
+    name: Jordan
+  KAZ:
+    code2: KZ
+    name: Kazakhstan
+  KEN:
+    code2: KE
+    name: Kenya
+  KIR:
+    code2: KI
+    name: Kiribati
+  PRK:
+    code2: KP
+    name: Korea (the Democratic People's Republic of) [o]
+  KOR:
+    code2: KR
+    name: Korea (the Republic of) [p]
+  KWT:
+    code2: KW
+    name: Kuwait
+  KGZ:
+    code2: KG
+    name: Kyrgyzstan
+  LAO:
+    code2: LA
+    name: Lao People's Democratic Republic (the) [q]
+  LVA:
+    code2: LV
+    name: Latvia
+  LBN:
+    code2: LB
+    name: Lebanon
+  LSO:
+    code2: LS
+    name: Lesotho
+  LBR:
+    code2: LR
+    name: Liberia
+  LBY:
+    code2: LY
+    name: Libya
+  LIE:
+    code2: LI
+    name: Liechtenstein
+  LTU:
+    code2: LT
+    name: Lithuania
+  LUX:
+    code2: LU
+    name: Luxembourg
+  MAC:
+    code2: MO
+    name: Macao [r]
+  MKD:
+    code2: MK
+    name: North Macedonia [s]
+  MDG:
+    code2: MG
+    name: Madagascar
+  MWI:
+    code2: MW
+    name: Malawi
+  MYS:
+    code2: MY
+    name: Malaysia
+  MDV:
+    code2: MV
+    name: Maldives
+  MLI:
+    code2: ML
+    name: Mali
+  MLT:
+    code2: MT
+    name: Malta
+  MHL:
+    code2: MH
+    name: Marshall Islands (the)
+  MTQ:
+    code2: MQ
+    name: Martinique
+  MRT:
+    code2: MR
+    name: Mauritania
+  MUS:
+    code2: MU
+    name: Mauritius
+  MYT:
+    code2: YT
+    name: Mayotte
+  MEX:
+    code2: MX
+    name: Mexico
+  FSM:
+    code2: FM
+    name: Micronesia (Federated States of)
+  MDA:
+    code2: MD
+    name: Moldova (the Republic of)
+  MCO:
+    code2: MC
+    name: Monaco
+  MNG:
+    code2: MN
+    name: Mongolia
+  MNE:
+    code2: ME
+    name: Montenegro
+  MSR:
+    code2: MS
+    name: Montserrat
+  MAR:
+    code2: MA
+    name: Morocco
+  MOZ:
+    code2: MZ
+    name: Mozambique
+  MMR:
+    code2: MM
+    name: Myanmar [t]
+  NAM:
+    code2: NN
+    name: Namibia
+  NRU:
+    code2: NR
+    name: Nauru
+  NPL:
+    code2: NP
+    name: Nepal
+  NLD:
+    code2: NL
+    name: Netherlands (the)
+  NCL:
+    code2: NC
+    name: New Caledonia
+  NZL:
+    code2: NZ
+    name: New Zealand
+  NIC:
+    code2: NI
+    name: Nicaragua
+  NER:
+    code2: NE
+    name: Niger (the)
+  NGA:
+    code2: NG
+    name: Nigeria
+  NIU:
+    code2: NU
+    name: Niue
+  NFK:
+    code2: NF
+    name: Norfolk Island
+  MNP:
+    code2: MP
+    name: Northern Mariana Islands (the)
+  NOR:
+    code2: NO
+    name: Norway
+  OMN:
+    code2: OM
+    name: Oman
+  PAK:
+    code2: PK
+    name: Pakistan
+  PLW:
+    code2: PW
+    name: Palau
+  PSE:
+    code2: PS
+    name: Palestine, State of
+  PAN:
+    code2: PA
+    name: Panama
+  PNG:
+    code2: PG
+    name: Papua New Guinea
+  PRY:
+    code2: PY
+    name: Paraguay
+  PER:
+    code2: PE
+    name: Peru
+  PHL:
+    code2: PH
+    name: Philippines (the)
+  PCN:
+    code2: PN
+    name: Pitcairn [u]
+  POL:
+    code2: PL
+    name: Poland
+  PRT:
+    code2: PT
+    name: Portugal
+  PRI:
+    code2: PR
+    name: Puerto Rico
+  QAT:
+    code2: QA
+    name: Qatar
+  REU:
+    code2: RE
+    name: Réunion
+  ROU:
+    code2: RO
+    name: Romania
+  RUS:
+    code2: RU
+    name: Russian Federation (the) [v]
+  RWA:
+    code2: RW
+    name: Rwanda
+  BLM:
+    code2: BL
+    name: Saint Barthélemy
+  SHN:
+    code2: SH
+    name: Saint Helena
+  KNA:
+    code2: KN
+    name: Saint Kitts and Nevis
+  LCA:
+    code2: LC
+    name: Saint Lucia
+  MAF:
+    code2: MF
+    name: Saint Martin (French part)
+  SPM:
+    code2: PM
+    name: Saint Pierre and Miquelon
+  VCT:
+    code2: VC
+    name: Saint Vincent and the Grenadines
+  WSM:
+    code2: WS
+    name: Samoa
+  SMR:
+    code2: SM
+    name: San Marino
+  STP:
+    code2: ST
+    name: Sao Tome and Principe
+  SAU:
+    code2: SA
+    name: Saudi Arabia
+  SEN:
+    code2: SN
+    name: Senegal
+  SRB:
+    code2: RS
+    name: Serbia
+  SYC:
+    code2: SC
+    name: Seychelles
+  SLE:
+    code2: SL
+    name: Sierra Leone
+  SGP:
+    code2: SG
+    name: Singapore
+  SXM:
+    code2: SX
+    name: Sint Maarten (Dutch part)
+  SVK:
+    code2: SK
+    name: Slovakia
+  SVN:
+    code2: SI
+    name: Slovenia
+  SLB:
+    code2: SB
+    name: Solomon Islands
+  SOM:
+    code2: SO
+    name: Somalia
+  ZAF:
+    code2: ZA
+    name: South Africa
+  SGS:
+    code2: GS
+    name: South Georgia and the South Sandwich Islands
+  SSD:
+    code2: SS
+    name: South Sudan
+  ESP:
+    code2: ES
+    name: Spain
+  LKA:
+    code2: LK
+    name: Sri Lanka
+  SDN:
+    code2: SD
+    name: Sudan (the)
+  SUR:
+    code2: SR
+    name: Suriname
+  SJM:
+    code2: SJ
+    name: Svalbard
+  SWE:
+    code2: SE
+    name: Sweden
+  CHE:
+    code2: CH
+    name: Switzerland
+  SYR:
+    code2: SY
+    name: Syrian Arab Republic (the) [x]
+  TWN:
+    code2: TW
+    name: Taiwan (Province of China) [y]
+  TJK:
+    code2: TJ
+    name: Tajikistan
+  TZA:
+    code2: TZ
+    name: Tanzania, the United Republic of
+  THA:
+    code2: TH
+    name: Thailand
+  TLS:
+    code2: TL
+    name: Timor-Leste [aa]
+  TGO:
+    code2: TG
+    name: Togo
+  TKL:
+    code2: TK
+    name: Tokelau
+  TON:
+    code2: TO
+    name: Tonga
+  TTO:
+    code2: TT
+    name: Trinidad and Tobago
+  TUN:
+    code2: TN
+    name: Tunisia
+  TUR:
+    code2: TR
+    name: Türkiye [ab]
+  TKM:
+    code2: TM
+    name: Turkmenistan
+  TCA:
+    code2: TC
+    name: Turks and Caicos Islands (the)
+  TUV:
+    code2: TV
+    name: Tuvalu
+  UGA:
+    code2: UG
+    name: Uganda
+  UKR:
+    code2: UA
+    name: Ukraine
+  ARE:
+    code2: AE
+    name: United Arab Emirates (the)
+  GBR:
+    code2: GB
+    name: United Kingdom of Great Britain and Northern Ireland (the)
+  UMI:
+    code2: UM
+    name: United States Minor Outlying Islands (the) [ad]
+  USA:
+    code2: US
+    name: United States of America (the)
+  URY:
+    code2: UY
+    name: Uruguay
+  UZB:
+    code2: UZ
+    name: Uzbekistan
+  VUT:
+    code2: VU
+    name: Vanuatu
+  VEN:
+    code2: VE
+    name: Venezuela (Bolivarian Republic of)
+  VNM:
+    code2: VN
+    name: Viet Nam [af]
+  VGB:
+    code2: VG
+    name: Virgin Islands (British) [ag]
+  VIR:
+    code2: VI
+    name: Virgin Islands (U.S.) [ah]
+  WLF:
+    code2: WF
+    name: Wallis and Futuna
+  ESH:
+    code2: EH
+    name: Western Sahara [ai]
+  YEM:
+    code2: YE
+    name: Yemen
+  ZMB:
+    code2: ZM
+    name: Zambia
+  ZWE:
+    code2: ZW
+    name: Zimbabwe

@@ -7,6 +7,7 @@ sys.path.append(ROOT_DIR)
 
 import lib.utils as ut
 menu_names = ut.get_menu_names()
+admin_lists = ut.get_admin_list()
 
 
 def make_not_registered_welcome_keyboard():
@@ -15,20 +16,27 @@ def make_not_registered_welcome_keyboard():
     return markup
 
 
-def make_welcome_keyboard():
+def make_welcome_keyboard(telegram_id: int):
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
     markup.add(menu_names.show_matches)
-    markup.add(menu_names.add_match)
     markup.add(menu_names.show_leaderboard)
     markup.add(menu_names.show_user_bets)
     markup.add(menu_names.show_current_user_bets)
+
+    if telegram_id in admin_lists:
+        markup.add(menu_names.add_match)
+
     return markup
 
 
 def make_matches_keyboard(matches):
     markup = types.InlineKeyboardMarkup()
     for match in matches:
-        button_text = f"{match.home_team} - {match.away_team}"
+        home_flag = ut.get_flag_emoji(match.home_team)
+        away_flag = ut.get_flag_emoji(match.away_team)
+        button_team_text = f"{home_flag}{match.home_team.upper()} - {match.away_team.upper()}{away_flag}   "
+        button_time_text = f"{match.match_time.strftime('%d %b %H:%M')}"
+        button_text = button_team_text + button_time_text
         callback_data = f"match_id={match.id}"
         callback_button = types.InlineKeyboardButton(text=button_text, callback_data=callback_data)
         markup.add(callback_button)
@@ -50,33 +58,20 @@ def make_sample_keyboard():
     markup = types.InlineKeyboardMarkup()
     return markup
 
-def make_sub_matches_keyboard():
+
+def make_sub_matches_keyboard(telegram_id: int):
     markup = types.ReplyKeyboardMarkup()
     button_make_bet = types.InlineKeyboardButton(text=menu_names.make_bet)
-    button_refresh_score = types.InlineKeyboardButton(text=menu_names.refresh_score)
-    button_refresh_rates = types.InlineKeyboardButton(text=menu_names.refresh_rates)
     button_show_bets = types.InlineKeyboardButton(text=menu_names.show_match_bets)
     button_to_menu = types.InlineKeyboardButton(text=menu_names.back_to_menu)
     markup.add(button_make_bet)
-    markup.add(button_refresh_score)
-    markup.add(button_refresh_rates)
     markup.add(button_show_bets)
     markup.add(button_to_menu)
-    return markup
 
-
-def make_bet_keyboard(match):
-
-    markup = types.InlineKeyboardMarkup()
-    home_text = f"{match.home_team} победит, кэф - {match.home_rate}"
-    draw_text = f"Ничья, кэф - {match.draw_rate}"
-    away_text = f"{match.away_team} победит, кэф - {match.away_rate}"
-    home_button = types.InlineKeyboardButton(text=home_text, callback_data=f'outcome_bet_w1_{match.id}')
-    draw_button = types.InlineKeyboardButton(text=draw_text, callback_data=f'outcome_bet_dd_{match.id}')
-    away_button = types.InlineKeyboardButton(text=away_text, callback_data=f'outcome_bet_w2_{match.id}')
-    markup.add(home_button)
-    markup.add(draw_button)
-    markup.add(away_button)
+    if telegram_id in admin_lists:
+        button_refresh_score = types.InlineKeyboardButton(text=menu_names.refresh_score)
+        button_refresh_rates = types.InlineKeyboardButton(text=menu_names.refresh_rates)
+        markup.add(button_refresh_score)
+        markup.add(button_refresh_rates)
 
     return markup
-

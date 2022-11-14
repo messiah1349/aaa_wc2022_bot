@@ -1,4 +1,7 @@
 import pandas as pd
+from tabulate import tabulate
+from markdownTable import markdownTable
+
 
 def print_bets(bets):
     text_bets = ""
@@ -24,11 +27,26 @@ def print_match_bets(bets) -> str:
     df = pd.DataFrame(bets)
     df.columns = ['игрок', 'счет1', 'счет2', 'ставка', 'дата']
     df['дата'] = df['дата'].dt.strftime('%m/%d')
-    return repr(df)
+    df = df.drop('дата', axis=1)
+    return markdownTable(df.to_dict(orient='records')).setParams(row_sep='markdown').getMarkdown()
 
 
 def print_leaderboard(leaderboard):
     # print(leaderboard)
     df = pd.DataFrame(leaderboard)
     df.columns = ['Айди', 'Игрок', 'Деньги']
-    return df.drop('Айди', axis=1).to_string(index=False)
+    df = df.drop('Айди', axis=1)
+    # return df.drop('Айди', axis=1).to_string(index=False)
+    # data = [[x[1], x[2]] for x in leaderboard]
+    # tab_table = tabulate(data, headers=['Игрок', 'Деньги'])
+    # print(tab_table)
+    # return tab_table
+
+    # text = """* bets *"""
+    # for user in leaderboard:
+    #     text += f"""```````n{user[1]}:   """
+    print(df.to_dict(orient='records'))
+
+    return markdownTable(df.to_dict(orient='records')).setParams(row_sep='markdown').getMarkdown()
+
+

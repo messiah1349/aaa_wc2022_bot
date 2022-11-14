@@ -1,6 +1,7 @@
 import os
 import sys
 from datetime import datetime
+import pytz
 
 from sqlalchemy import create_engine, MetaData, Table, insert, func, case, and_, or_, update, select
 from sqlalchemy.sql.functions import coalesce
@@ -281,9 +282,20 @@ class BetProcessor(TableProcessor):
         with Session(self._engine) as session:
             query = session.query(self.table_model)\
                 .filter(getattr(self.table_model, 'telegram_id') == telegram_id) \
-                .filter(getattr(self.table_model, 'match_id') == match_id)
+                .filter(getattr(self.table_model, 'match_id') == match_id)\
+                .filter(getattr(self.table_model, 'is_deleted') == 0)
 
             return query
+
+    def _mark_bets_as_deleted(self, telegram_id: int, match_id: int) -> None:
+        with Session(self._engine) as session:
+            session.query(self.table_model) \
+                .filter(getattr(self.table_model, 'telegram_id') == telegram_id) \
+                .filter(getattr(self.table_model, 'match_id') == match_id) \
+                .update(
+                    {'is_deleted': 1}
+                )
+            session.commit()
 
     def get_bet_by_player_and_client_id(self, telegram_id: int, match_id: int):
         with Session(self._engine) as session:
@@ -295,17 +307,25 @@ class BetProcessor(TableProcessor):
                 away_prediction_score: int, bet_date: datetime) \
             -> Response:
 
-        if self._get_bet_query(telegram_id, match_id).count() > 0:
-            return Response(1, 'bet already existed')
-
-        pp = PlayerProcessor(self._engine)
-        user_amount = pp.get_amount_by_user(telegram_id)
+        player_processor = PlayerProcessor(self._engine)
+        user_amount = player_processor.get_amount_by_user(telegram_id)
 
         if amount > user_amount:
             return Response(2, 'not enough money')
 
         if amount < 0:
             return Response(3, 'negative value')
+
+        match_processor = MatchProcessor(self._engine)
+        match_time = match_processor.get_match_by_id(match_id).answer.match_time
+        match_time = pytz.timezone('Europe/Moscow').localize(match_time)
+
+        if bet_date > match_time:
+            return Response(4, 'late bet')
+
+        if self._get_bet_query(telegram_id, match_id).count() > 0:
+            self._mark_bets_as_deleted(telegram_id, match_id)
+            _ = player_processor.update_money()
 
         bet_id = self._generate_id()
 
@@ -319,7 +339,8 @@ class BetProcessor(TableProcessor):
             'home_prediction_score': home_prediction_score,
             'away_prediction_score': away_prediction_score,
             'prediction_outcome': outcome,
-            'date': bet_date
+            'date': bet_date,
+            'is_deleted': 0
         }
 
         self._insert_into_table(self.table_model, insert_data)
@@ -337,6 +358,7 @@ class MixedTableProcessor:
                 query = session.query(Bet, Match)\
                     .filter(Bet.match_id == Match.id)\
                     .filter(Bet.telegram_id == telegram_id) \
+                    .filter(Bet.is_deleted == 0)\
                     .order_by(Match.match_time)\
                     .with_entities(Match.home_team, Match.away_team, Bet.home_prediction_score, Bet.away_prediction_score,
                                    Bet.amount, Bet.date)\
@@ -352,6 +374,7 @@ class MixedTableProcessor:
                 query = session.query(Bet, Player)\
                     .filter(Bet.match_id == match_id) \
                     .filter(Bet.telegram_id == Player.telegram_id) \
+                    .filter(Bet.is_deleted == 0)\
                     .order_by(Bet.date)\
                     .with_entities(Player.name, Bet.home_prediction_score, Bet.away_prediction_score,
                                    Bet.amount, Bet.date)
@@ -366,6 +389,7 @@ class MixedTableProcessor:
 
             aggregate_subquery = session.query(Match, Bet)\
                 .filter(Bet.match_id == Match.id) \
+                .filter(Bet.is_deleted == 0)\
                 .with_entities(
                     Bet.telegram_id.label('telegram_id'),
                     coalesce(func.sum(
@@ -403,16 +427,6 @@ class MixedTableProcessor:
                      aggregate_subquery.c.total_bet_amount, INITIAL_USER_MONEY).label('current_money')
                 )\
                 .subquery()
-
-            # money_query = session.query(Player, aggregate_subquery)\
-            #     .filter(Player.telegram_id == aggregate_subquery.c.telegram_id)\
-            #     .with_entities(
-            #         Player.telegram_id,
-            #         (INITIAL_USER_MONEY +
-            #          aggregate_subquery.c.amount_outcome +
-            #          aggregate_subquery.c.predicted_score_outcome -
-            #          aggregate_subquery.c.total_bet_amount).label('current_money')
-            #     ).subquery()
 
             return client_money_query
 

@@ -66,9 +66,9 @@ with Session(engine) as session:
     print("cnt ==== ", session.query(Bet).count())
     assert session.query(Bet).count() == 1
     back.add_bet(700, 1, 200, 4, 3, datetime(2022, 11, 8, 10, 20, 55))
-    assert session.query(Bet).count() == 1
+    assert session.query(Bet).filter(Bet.is_deleted == 0).count() == 1
     back.add_bet(700, 2, 205, 1, 1, datetime(2022, 11, 8, 10, 20, 57))
-    assert session.query(Bet).count() == 2
+    assert session.query(Bet).filter(Bet.is_deleted == 0).count() == 2
 
     back.add_bet(800, 1, 700, 2, 2, datetime(2022, 11, 8, 10, 20, 55))
 
@@ -96,7 +96,8 @@ with Session(engine) as session:
     all_clients = back.get_players().answer
     print(all_clients)
 
-
+    m4 = back.get_match_by_id(2)
+    print(m4.answer.match_time)
 
     # matches = back.get_all_matches()
     # # print(matches)

@@ -24,3 +24,26 @@ def get_menu_names():
     menu_names = MenuNames()
 
     return menu_names
+
+
+def get_admin_list():
+    return config['admins_list']
+
+
+def get_flag_emoji(code3: str) -> str:
+    code3 = code3.upper()
+    flags = config['flags']
+    if code3 not in flags:
+        return ''
+    code2 = flags[code3]['code2']
+    offset = ord('🇦') - ord('A')
+    return chr(ord(code2[0]) + offset) + chr(ord(code2[1]) + offset)
+
+
+def get_country_name(code3: str) -> str:
+    code3 = code3.upper()
+    flags = config['flags']
+    if code3 not in flags:
+        return code3
+    country_name = flags[code3]['name']
+    return country_name
