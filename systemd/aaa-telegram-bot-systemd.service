@@ -7,7 +7,7 @@ After=network.target
 User=root
 WorkingDirectory=/root/bots/aaa_wc2022_bot
 Environment="PATH=/root/bots/aaa_wc2022_bot/aaa_venv/bin"
-ExecStart=/root/bots/aaa_wc2022_bot/aaa_venv/bin/python lib/client.py
+ExecStart=/root/bots/aaa_wc2022_bot/aaa_venv/bin/python /root/bots/aaa_wc2022_bot/lib/client.py
 KillMode=process
 Restart=always
 RestartSec=5
