@@ -189,6 +189,11 @@ def process_match(message, match_id):
             msg = bot.send_message(chat_id, rates_text, reply_markup=ReplyKeyboardRemove())
             bot.register_next_step_handler(msg, process_refresh_rates, match_id=match_id)
             return
+        case menu_names.refresh_team_names:
+            team_name_text = "Введите названия команд в формате 'rus arm':"
+            msg = bot.send_message(chat_id, team_name_text, reply_markup=ReplyKeyboardRemove())
+            bot.register_next_step_handler(msg, process_refresh_team_names, match_id=match_id)
+            return
         case menu_names.show_match_bets:
             bets = backend.show_match_bets(match_id).answer
             send_text = pf.print_match_bets(bets) if bets else "на этот матч еще никто никто ничего не поставил"
@@ -261,6 +266,29 @@ def process_refresh_score(message, match_id):
         return
 
 
+def process_refresh_team_names(message, match_id):
+    chat_id = message.chat.id
+    text = message.text
+    error_text = "Неправильно ввели!\nВведите названия команд в формате 'rus arm'"
+
+    team_names = text.strip().split(' ')
+    if len(team_names) != 2 or len(team_names[0]) != 3 or len(team_names[1]) != 3:
+        msg = bot.send_message(chat_id, error_text)
+        bot.register_next_step_handler(msg, process_refresh_team_names, match_id=match_id)
+        return
+
+    home_team, away_team = team_names[0], team_names[1]
+
+    response = backend.change_team_names(match_id, home_team, away_team)
+
+    if response.status == 0:
+        bot.send_message(chat_id, 'Названия команд обновлены')
+        send_welcome(message)
+        return
+    else:
+        bot.send_message(chat_id, 'Что-то пошло не так')
+        send_welcome(message)
+        return
 
 
 def make_bet(message, match_id):

@@ -261,6 +261,21 @@ class MatchProcessor(TableProcessor):
 
         return Response(0, 'rates updated')
 
+    def change_team_names(self, match_id: int, home_team: str, away_team: str):
+
+        if not self._get_match_query(match_id).count():
+            return Response(1, 'match has not existed yet')
+
+        with Session(self._engine) as session:
+            session.query(self.table_model)\
+                .filter(getattr(self.table_model, 'id') == match_id)\
+                .update(
+                    {'home_team': home_team, 'away_team': away_team}
+                )
+            session.commit()
+
+        return Response(0, 'rates updated')
+
     def get_all_matches(self):
         return self._get_all_data_from_table(self.table_model)
 
@@ -470,6 +485,11 @@ class Backend:
     def change_rates(self, match_id: int, home_rate: float, draw_rate: float, away_rate: float):
         match_processor = MatchProcessor(self._engine)
         response = match_processor.change_rates(match_id, home_rate, draw_rate, away_rate)
+        return response
+
+    def change_team_names(self, match_id: int, home_team: str, away_team: str) -> Response:
+        match_processor = MatchProcessor(self._engine)
+        response = match_processor.change_team_names(match_id, home_team, away_team)
         return response
 
     def add_bet(self, telegram_id: int, match_id: int, amount: float, home_prediction_score: int,

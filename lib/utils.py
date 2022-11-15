@@ -56,6 +56,8 @@ def get_future_matches(matches):
     future_matches = [match for match in matches \
                       if pytz.timezone('Europe/Moscow').localize(match.match_time) > current_time]
 
+    future_matches = sorted(future_matches, key=lambda match: match.match_time ,reverse=False)
+
     return future_matches
 
 
@@ -63,5 +65,7 @@ def get_previous_matches(matches):
     current_time = datetime.now(pytz.timezone('Europe/Moscow'))
     previous_matches = [match for match in matches \
                       if pytz.timezone('Europe/Moscow').localize(match.match_time) <= current_time]
+
+    previous_matches = sorted(previous_matches, key=lambda match: match.match_time, reverse=True)
 
     return previous_matches

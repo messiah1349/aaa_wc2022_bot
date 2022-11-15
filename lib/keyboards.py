@@ -72,7 +72,9 @@ def make_sub_matches_keyboard(telegram_id: int):
     if telegram_id in admin_lists:
         button_refresh_score = types.InlineKeyboardButton(text=menu_names.refresh_score)
         button_refresh_rates = types.InlineKeyboardButton(text=menu_names.refresh_rates)
+        button_refresh_team_names = types.InlineKeyboardButton(text=menu_names.refresh_team_names)
         markup.add(button_refresh_score)
         markup.add(button_refresh_rates)
+        markup.add(button_refresh_team_names)
 
     return markup
