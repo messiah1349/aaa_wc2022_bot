@@ -1,13 +1,12 @@
 [Unit]
 
 Description=aaa bot
-After=network.target
+After=network-online.target
 
 [Service]
 User=root
 WorkingDirectory=/root/bots/aaa_wc2022_bot
-Environment="PATH=/root/bots/aaa_wc2022_bot/aaa_venv/bin"
-ExecStart=/root/bots/aaa_wc2022_bot/aaa_venv/bin/python /root/bots/aaa_wc2022_bot/lib/client.py
+ExecStart=./run.sh
 KillMode=process
 Restart=always
 RestartSec=5
