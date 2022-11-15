@@ -90,7 +90,7 @@ def process_start_menu(message):
         case menu_names.show_user_bets:
             bets = backend.show_user_bets(chat_id).answer
             bets_text = pf.print_bets(bets) if bets else 'У вас еще нет ставок'
-            bot.send_message(chat_id, bets_text)
+            bot.send_message(chat_id, bets_text, parse_mode='Markdown')
             send_welcome(message)
             return
         case menu_names.show_current_user_bets:
@@ -139,8 +139,9 @@ def process_players(call):
     player_name = backend.get_player_by_id(telegram_id).answer
     bets = backend.show_user_bets(telegram_id).answer
     text_output = f'Ставки игрока {player_name}:\n\n'
-    text_output = text_output + pf.print_bets(bets)
     bot.send_message(chat_id, text_output, parse_mode='html')
+    text_output = pf.print_bets(bets)
+    bot.send_message(chat_id, text_output, parse_mode='markdown')
     # send_welcome(call.message)
     bot.send_message(chat_id, "Жми /start")
 

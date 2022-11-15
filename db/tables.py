@@ -57,6 +57,7 @@ class Bet(Base):
     home_prediction_score = Column(Integer)
     away_prediction_score = Column(Integer)
     date = Column(DATETIME)
+    is_deleted = Column(Integer)
 
 
 if __name__ == '__main__':

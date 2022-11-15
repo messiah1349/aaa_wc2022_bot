@@ -4,12 +4,17 @@ from markdownTable import markdownTable
 
 
 def print_bets(bets):
+    data = []
     text_bets = ""
     for row in bets:
-        text_bets += f"{row.home_team[:3]}-{row.away_team[:3]} \
-{row.home_prediction_score}:{row.away_prediction_score} bet={int(row.amount)}\n"
-
-    return text_bets
+        data.append([f"{row.home_team[:3]}-{row.away_team[:3]}",
+                     f'{row.home_prediction_score}:{row.away_prediction_score}',
+                     str(int(row.amount))])
+        # text_bets += f"{row.home_team[:3]}-{row.away_team[:3]} \
+# {row.home_prediction_score}:{row.away_prediction_score} bet={int(row.amount)}\n"
+    df = pd.DataFrame(data)
+    df.columns = ['матч', 'счет', 'ставк']
+    return markdownTable(df.to_dict(orient='records')).setParams(row_sep='markdown').getMarkdown()
 
 
 def print_bet(bet):
@@ -45,7 +50,7 @@ def print_leaderboard(leaderboard):
     # text = """* bets *"""
     # for user in leaderboard:
     #     text += f"""```````n{user[1]}:   """
-    print(df.to_dict(orient='records'))
+    # print(df.to_dict(orient='records'))
 
     return markdownTable(df.to_dict(orient='records')).setParams(row_sep='markdown').getMarkdown()
 
