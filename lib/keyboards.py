@@ -22,6 +22,7 @@ def make_welcome_keyboard(telegram_id: int):
     markup.add(menu_names.show_leaderboard)
     markup.add(menu_names.show_user_bets)
     markup.add(menu_names.show_current_user_bets)
+    markup.add(menu_names.show_finished_matches)
 
     if telegram_id in admin_lists:
         markup.add(menu_names.add_match)

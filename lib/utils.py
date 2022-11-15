@@ -2,6 +2,8 @@ import os
 import sys
 import yaml
 from dataclasses import make_dataclass
+from datetime import datetime
+import pytz
 
 ROOT_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(ROOT_DIR)
@@ -47,3 +49,19 @@ def get_country_name(code3: str) -> str:
         return code3
     country_name = flags[code3]['name']
     return country_name
+
+
+def get_future_matches(matches):
+    current_time = datetime.now(pytz.timezone('Europe/Moscow'))
+    future_matches = [match for match in matches \
+                      if pytz.timezone('Europe/Moscow').localize(match.match_time) > current_time]
+
+    return future_matches
+
+
+def get_previous_matches(matches):
+    current_time = datetime.now(pytz.timezone('Europe/Moscow'))
+    previous_matches = [match for match in matches \
+                      if pytz.timezone('Europe/Moscow').localize(match.match_time) <= current_time]
+
+    return previous_matches

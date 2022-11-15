@@ -73,10 +73,18 @@ def process_start_menu(message):
             return
         case menu_names.show_matches:
             matches = backend.get_all_matches()
-            markup = kb.make_matches_keyboard(matches)
-            bot.send_message(chat_id, "Выбери матч:", reply_markup=markup)
-            # handle by process_matches function
-            return
+            # print(matches)
+            future_matches = ut.get_future_matches(matches)
+            # print(future_matches)
+            if not future_matches:
+                bot.send_message(chat_id, "Еще нет матчей")
+                send_welcome(message)
+                return
+            else:
+                markup = kb.make_matches_keyboard(future_matches)
+                bot.send_message(chat_id, "Выбери матч:", reply_markup=markup)
+                # handle by process_matches function
+                return
         case menu_names.add_match:
             msg = bot.reply_to(message, '''Напиши матч в формате - "Аргентина Ямайка 11 12 15 00"''')
             bot.register_next_step_handler(msg, process_add_match)
@@ -99,6 +107,18 @@ def process_start_menu(message):
             bot.send_message(chat_id, "Выбери игрока:", reply_markup=markup)
             # send_welcome(message)
             return
+        case menu_names.show_finished_matches:
+            matches = backend.get_all_matches()
+            previous_matches = ut.get_previous_matches(matches)
+            if not previous_matches:
+                bot.send_message(chat_id, "Еще нет матчей")
+                send_welcome(message)
+                return
+            else:
+                markup = kb.make_matches_keyboard(previous_matches)
+                bot.send_message(chat_id, "Выбери матч:", reply_markup=markup)
+                # handle by process_matches function
+                return
         case '/help':
             send_help(message)
 
@@ -140,7 +160,7 @@ def process_players(call):
     bets = backend.show_user_bets(telegram_id).answer
     text_output = f'Ставки игрока {player_name}:\n\n'
     bot.send_message(chat_id, text_output, parse_mode='html')
-    text_output = pf.print_bets(bets)
+    text_output = pf.print_bets(bets) if bets else f"У игрока {player_name} еще нет ставок"
     bot.send_message(chat_id, text_output, parse_mode='markdown')
     # send_welcome(call.message)
     bot.send_message(chat_id, "Жми /start")

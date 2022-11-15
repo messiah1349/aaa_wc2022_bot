@@ -10,6 +10,7 @@ menu_naming:
   back_to_menu: В меню
   user_registration: Зарегистрироваться
   show_matches: Показать матчи
+  show_finished_matches: Показать завершившиеся матчи
   show_match_info: Показать информацию о матче
   refresh_score: Обновить счет
   refresh_rates: Обновить коэффициенты
