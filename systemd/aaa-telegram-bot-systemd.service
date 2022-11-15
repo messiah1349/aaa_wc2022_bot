@@ -6,7 +6,7 @@ After=network-online.target
 [Service]
 User=root
 WorkingDirectory=/root/bots/aaa_wc2022_bot
-ExecStart=bash /root/bots/aaa_wc2022_bot/run.sh
+ExecStart=sudo bash /root/bots/aaa_wc2022_bot/run.sh
 KillMode=process
 Restart=always
 RestartSec=5
