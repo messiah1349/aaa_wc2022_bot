@@ -334,6 +334,7 @@ class BetProcessor(TableProcessor):
         match_processor = MatchProcessor(self._engine)
         match_time = match_processor.get_match_by_id(match_id).answer.match_time
         match_time = pytz.timezone('Europe/Moscow').localize(match_time)
+        # bet_date = pytz.timezone('Europe/Moscow').localize(bet_date)
 
         if bet_date > match_time:
             return Response(4, 'late bet')

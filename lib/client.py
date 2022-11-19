@@ -34,11 +34,33 @@ class ParsedBet:
     away_score: int
     amount: float
 
+@bot.message_handler(commands=['rules'])
+def send_rules(message):
+    chat_id = message.chat.id
+    help_message = """Каждый скидывает вначале по 3к рублей.
+    
+Когда начнется турнир, каждый получает 10000 виртуальных денег. На них делаются ставки на ближайшие матчи, на каждый матч можно поставить сколько угодно денег, но не больше чем у вас осталось. 
+
+Сколько у вас осталось, можно посмотреть на лидерборде. \n
+На каждый матч берем реальные коффиценты. Ставим на исход и на счет.
+- Если угадали исход, то получаете выигрыш согласно кэфам и вашей ставке.
+- Если угадали счет, то еще плюс к этому получаете вашу ставку умноженную на 3.
+
+В конце турнира смотрим у кого больше очков осталось:
+первое место берет 50% всего банка,
+второе - 30%,
+третье - 20%
+"""
+    bot.send_message(chat_id, help_message)
+    # print('help')
+    send_welcome(message)
+
+
 @bot.message_handler(commands=['help'])
 def send_help(message):
     chat_id = message.chat.id
-    help_message = "Если заблудишься жми /start"
-    bot.send_message(chat_id, help_message)
+    rule_message = "Если заблудишься жми /start"
+    bot.send_message(chat_id, rule_message)
     # print('help')
     send_welcome(message)
 
@@ -91,7 +113,7 @@ def process_start_menu(message):
             return
         case menu_names.show_leaderboard:
             leaderboard = backend.get_players().answer
-            leaderboard = pf.print_leaderboard(leaderboard)
+            leaderboard = pf.print_leaderboard(leaderboard, chat_id)
             bot.send_message(chat_id, leaderboard, parse_mode='Markdown')
             send_welcome(message)
             return
@@ -121,6 +143,8 @@ def process_start_menu(message):
                 return
         case '/help':
             send_help(message)
+        case '/rules':
+            send_rules(message)
 
     # markup = kb.make_welcome_keyboard(chat_id)
     # msg = bot.send_message(chat_id, 'Выберите действие', reply_markup=markup)
@@ -137,13 +161,14 @@ def process_matches(call):
     bot.edit_message_text(text=message_text, chat_id=chat_id, message_id=message_id, reply_markup=edit_markup)
 
     match_id = int(call.data.split('=')[1])
-    game = backend.get_match_by_id(match_id).answer
+    match = backend.get_match_by_id(match_id).answer
+    match_text = pf.print_match(match)
     player_bet = backend.get_bet_by_player_and_client_id(chat_id, match_id).answer
-    bet_text = "\nВаша ставка: "
+    bet_text = "\n*Ваша ставка:* "
     bet_text += pf.print_bet(player_bet[0]) if player_bet else "еще не делали"
-    text_output = str(game) + bet_text + '\n\nЧто сделать с этим матчем?'
+    text_output = match_text + bet_text + '\n\nЧто сделать с этим матчем?'
     markup = kb.make_sub_matches_keyboard(chat_id)
-    msg = bot.send_message(chat_id, text_output, reply_markup=markup)
+    msg = bot.send_message(chat_id, text_output, reply_markup=markup, parse_mode='markdown')
     bot.register_next_step_handler(msg, process_match, match_id=match_id)
 
 
@@ -158,12 +183,12 @@ def process_players(call):
     telegram_id = int(call.data.split('=')[1])
     player_name = backend.get_player_by_id(telegram_id).answer
     bets = backend.show_user_bets(telegram_id).answer
-    text_output = f'Ставки игрока {player_name}:\n\n'
-    bot.send_message(chat_id, text_output, parse_mode='html')
+    text_output = f'Ставки игрока *{player_name}*:\n\n'
+    bot.send_message(chat_id, text_output, parse_mode='markdown')
     text_output = pf.print_bets(bets) if bets else f"У игрока {player_name} еще нет ставок"
     bot.send_message(chat_id, text_output, parse_mode='markdown')
-    # send_welcome(call.message)
-    bot.send_message(chat_id, "Жми /start")
+    send_welcome(call.message)
+    # bot.send_message(chat_id, "Жми /start")
 
 
 def process_match(message, match_id):

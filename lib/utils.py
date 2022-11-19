@@ -33,6 +33,12 @@ def get_admin_list():
 
 
 def get_flag_emoji(code3: str) -> str:
+
+    if code3.upper() == 'ENG':
+        return '🏴󠁧󠁢󠁥󠁮󠁧󠁿'
+    if code3.upper() == 'WAL':
+        return '🏴󠁧󠁢󠁷󠁬󠁳󠁿'
+
     code3 = code3.upper()
     flags = config['flags']
     if code3 not in flags:
@@ -43,6 +49,12 @@ def get_flag_emoji(code3: str) -> str:
 
 
 def get_country_name(code3: str) -> str:
+
+    if code3.upper() == 'ENG':
+        return 'England'
+    if code3.upper() == 'WAL':
+        return 'Wales'
+
     code3 = code3.upper()
     flags = config['flags']
     if code3 not in flags:
