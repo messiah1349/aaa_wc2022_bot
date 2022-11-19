@@ -22,9 +22,15 @@ engine = create_engine(data_base_uri, echo=True)
 from db.tables import Player, Match, Bet
 
 with Session(engine) as session:
-    session.query(Player) \
-        .filter(Player.telegram_id == 46340594) \
-        .update(
-        {'name': 'Мигаев'}
-    )
+    # session.query(Player) \
+    #     .filter(Player.telegram_id == 46340594) \
+    #     .update(
+    #     {'name': 'Мигаев'}
+    # )
+    # session.commit()
+
+    session.query(Match).delete()
+    session.commit()
+
+    session.query(Bet).delete()
     session.commit()

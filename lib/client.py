@@ -275,9 +275,17 @@ def process_refresh_score(message, match_id):
 
     response = backend.change_score(match_id, home_score, away_score)
     if response.status == 0:
+        players_winnings = response.answer
+        match_info = backend.get_match_by_id(match_id).answer
         response_money_update = backend.update_client_money()
         if response_money_update.status == 0:
             bot.send_message(chat_id, 'Счет обновлен')
+            for winning in players_winnings:
+                try:
+                    telegram_id, winning_text = get_winning_text(winning, match_info, home_score, away_score)
+                    bot.send_message(telegram_id, winning_text)
+                except telebot.apihelper.ApiTelegramException:
+                    pass
             send_welcome(message)
             return
         else:
@@ -290,6 +298,24 @@ def process_refresh_score(message, match_id):
         send_welcome(message)
         return
 
+
+def get_winning_text(winning_row, match_info, home_score: int, away_score: int):
+    telegram_id = winning_row.telegram_id
+    winning = winning_row.winning
+    bet_amount = winning_row.bet_amount
+    home_team = match_info.home_team
+    away_team = match_info.away_team
+    home_team = ut.get_country_name(home_team)
+    away_team = ut.get_country_name(away_team)
+
+    text = f"""Матч {home_team}-{away_team} завершился co счетом {home_score}-{away_score}
+Ваша ставка на него = {int(bet_amount)}💰
+Ваш выигрыш - {int(winning)}💰"""
+
+    if winning > 0:
+        text = text + '\nПоздравляем с успешной ставкой!🎉'
+
+    return telegram_id, text
 
 def process_refresh_team_names(message, match_id):
     chat_id = message.chat.id
@@ -329,6 +355,7 @@ def make_bet(message, match_id):
     if bet:
         current_time = datetime.now(pytz.timezone('Europe/Moscow'))
         resp = backend.add_bet(chat_id, match_id, bet.amount, bet.home_score, bet.away_score, current_time)
+
         if resp.status == 0:
             resp_score_update = backend.update_client_money()
             if resp_score_update.status == 0:

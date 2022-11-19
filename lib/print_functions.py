@@ -9,12 +9,20 @@ def print_bets(bets):
     table.align['🌍'] = 'c'
     table.align['⚽'] = 'c'
     table.align['💰'] = 'r'
-    data = []
-    text_bets = ""
+    # table.align['🏆'] = 'r'
+
     for row in bets:
+        money = str(int(row.amount))
+        if row.winning == 0:
+            money = '❌' + money
+        elif row.winning == 1:
+            money = '✔️' + money
+        elif row.winning == 2:
+            money = '✔️' + '✔️' + money
+
         table.add_row([f"{row.home_team}-{row.away_team}",
                      f'{row.home_prediction_score}:{row.away_prediction_score}',
-                     str(int(row.amount))])
+                     money])
     return f'```{table}```'
     # df = pd.DataFrame(data)
     # df.columns = ['матч', 'счет', 'ставк']

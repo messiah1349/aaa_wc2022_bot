@@ -169,6 +169,7 @@ class PlayerProcessor(TableProcessor):
 
                 return Response(0, 'money_updated')
         except Exception as e:
+            print(e)
             return Response(1, e)
 
 
@@ -244,7 +245,10 @@ class MatchProcessor(TableProcessor):
                 )
             session.commit()
 
-        return Response(0, 'score updated')
+        mixed_table_processor = MixedTableProcessor(self._engine)
+        players_results = mixed_table_processor.calculate_winnings_for_match(match_id)
+
+        return Response(0, players_results)
 
     def change_rates(self, match_id: int, home_rate: float, draw_rate: float, away_rate: float) -> Response:
 
@@ -377,7 +381,17 @@ class MixedTableProcessor:
                     .filter(Bet.is_deleted == 0)\
                     .order_by(Match.match_time)\
                     .with_entities(Match.home_team, Match.away_team, Bet.home_prediction_score, Bet.away_prediction_score,
-                                   Bet.amount, Bet.date)\
+                                   Bet.amount, Bet.date,
+                                   case(
+                                       (Match.outcome == None, -1),
+                                       (and_(
+                                           (Bet.home_prediction_score == Match.score_home),
+                                           (Bet.away_prediction_score == Match.score_away)
+                                       ), 2),
+                                       (Bet.prediction_outcome == Match.outcome, 1),
+                                       else_=0
+                                   ).label('winning')
+                                   )
 
                 res = session.execute(query).fetchall()
                 return Response(0, res)
@@ -400,38 +414,49 @@ class MixedTableProcessor:
         except Exception as e:
             return Response(1, "something was wrong")
 
-    def calculate_money_for_players(self):
+    def _join_match_and_bets(self):
         with Session(self._engine) as session:
 
-            aggregate_subquery = session.query(Match, Bet)\
+            query = session.query(Match, Bet)\
                 .filter(Bet.match_id == Match.id) \
                 .filter(Bet.is_deleted == 0)\
                 .with_entities(
                     Bet.telegram_id.label('telegram_id'),
-                    coalesce(func.sum(
-                           case(
-                               (Bet.prediction_outcome != Match.outcome, 0),
-                               (Match.outcome == 'W1', Bet.amount * Match.home_rate),
-                               (Match.outcome == 'DD', Bet.amount * Match.draw_rate),
-                               (Match.outcome == 'W2', Bet.amount * Match.away_rate),
-                                else_=0
-                           )
-                    ), 0).label('amount_outcome'),
-                    coalesce(func.sum(
-                        case(
-                            (and_(
-                                    (Bet.home_prediction_score == Match.score_home),
-                                    (Bet.away_prediction_score == Match.score_away)
-                                ),
-                                Bet.amount * PREDICTED_SCORE_COEFF
-                            ),
-                            else_=0
-                        )
-                    ), 0).label('predicted_score_outcome'),
-                    coalesce(func.sum(Bet.amount), 0).label('total_bet_amount')
+                    Match.id.label('match_id'),
+                    case(
+                        (Bet.prediction_outcome != Match.outcome, 0),
+                        (Match.outcome == 'W1', Bet.amount * Match.home_rate),
+                        (Match.outcome == 'DD', Bet.amount * Match.draw_rate),
+                        (Match.outcome == 'W2', Bet.amount * Match.away_rate),
+                        else_=0
+                    ).label('amount_outcome'),
+                    case(
+                        (and_(
+                            (Bet.home_prediction_score == Match.score_home),
+                            (Bet.away_prediction_score == Match.score_away)
+                        ),
+                         Bet.amount * PREDICTED_SCORE_COEFF
+                        ),
+                        else_=0
+                    ).label('predicted_score_outcome'),
+                    Bet.amount.label('total_bet_amount')
+                )
+
+            return query
+
+    def calculate_money_for_players(self):
+        with Session(self._engine) as session:
+
+            pre_aggregate_subquery = self._join_match_and_bets().subquery()
+            aggregate_subquery = session.query(pre_aggregate_subquery)\
+                .with_entities(
+                    pre_aggregate_subquery.c.telegram_id,
+                    coalesce(func.sum(pre_aggregate_subquery.c.amount_outcome), 0).label('amount_outcome'),
+                    coalesce(func.sum(pre_aggregate_subquery.c.predicted_score_outcome), 0)\
+                        .label('predicted_score_outcome'),
+                    coalesce(func.sum(pre_aggregate_subquery.c.total_bet_amount), 0).label('total_bet_amount')
                 )\
-                .group_by(Bet.telegram_id)\
-                .subquery()
+                .group_by(pre_aggregate_subquery.c.telegram_id).subquery()
 
             client_money_query = session.query(Player)\
                 .join(aggregate_subquery, Player.telegram_id == aggregate_subquery.c.telegram_id, isouter=True) \
@@ -445,6 +470,22 @@ class MixedTableProcessor:
                 .subquery()
 
             return client_money_query
+
+    def calculate_winnings_for_match(self, match_id: int):
+        with Session(self._engine) as session:
+
+            all_matches = self._join_match_and_bets().subquery()
+            current_match = session.query(all_matches)\
+                .filter(all_matches.c.match_id==match_id)
+
+            total_query = current_match.with_entities(
+                all_matches.c.telegram_id.label('telegram_id'),
+                (all_matches.c.amount_outcome +
+                all_matches.c.predicted_score_outcome).label('winning'),
+                all_matches.c.total_bet_amount.label('bet_amount')
+            )
+            res = session.execute(total_query).fetchall()
+            return res
 
 
 class Backend:
