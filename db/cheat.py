@@ -29,8 +29,14 @@ with Session(engine) as session:
     # )
     # session.commit()
 
-    session.query(Match).delete()
-    session.commit()
+    # session.query(Match).delete()
+    # session.commit()
+    #
+    # session.query(Bet).delete()
+    # session.commit()
 
-    session.query(Bet).delete()
+    session.query(Match) \
+        .update(
+        {'score_home': None, 'score_away': None, 'outcome': None}
+    )
     session.commit()

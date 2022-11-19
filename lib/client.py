@@ -261,6 +261,11 @@ def process_refresh_rates(message, match_id):
 def process_refresh_score(message, match_id):
     chat_id = message.chat.id
     text = message.text
+
+    if text == '/start':
+        send_welcome(message)
+        return
+
     error_text = "Неправильно ввели!\nВведите счет матча в формате '1 2'\nгде первые 2 числа это счет"
 
     score = text.strip().split(' ')
@@ -419,46 +424,52 @@ def process_add_user(message):
 
 
 def process_add_match(message):
-        chat_id = message.chat.id
-        text = message.text
-        splitted_text = text.split(" ")
-        if len(splitted_text) != 6:
-            msg = bot.send_message(chat_id,
-                    '''Неверно указал!\nНапиши матч в формате - "Аргентина Ямайка 11 12 15 00"''')
-            bot.register_next_step_handler(msg, process_add_match)
-            return
 
-        home_team = splitted_text[0]
-        away_team = splitted_text[1]
-        mth = splitted_text[2]
-        day = splitted_text[3]
-        hour = splitted_text[4]
-        minute = splitted_text[5]
+    chat_id = message.chat.id
+    text = message.text
 
-        try:
-            mth = int(mth)
-            day = int(day)
-            hour = int(hour)
-            minute = int(minute)
-            match_date = datetime(2022, mth, day, hour, minute, tzinfo=pytz.timezone('Europe/Moscow'))
-        except ValueError:
-            msg = bot.reply_to(message,
-             '''Неверно указал!\nнапиши матч в формате - "Аргентина Ямайка 11 12 15 00"\nИ следи за чиселками даты!''')
-            bot.register_next_step_handler(msg, process_add_match)
-            return
+    if text == '/start':
+        send_welcome(message)
+        return
 
-        response = backend.add_match(home_team, away_team, match_date)
-        if response.status == 1:
-            msg = bot.reply_to(message, 'такой матч уже есть')
-            bot.register_next_step_handler(msg, process_add_match)
-            return
+    splitted_text = text.split(" ")
+    if len(splitted_text) != 6:
+        msg = bot.send_message(chat_id,
+                '''Неверно указал!\nНапиши матч в формате - "Аргентина Ямайка 11 12 15 00"''')
+        bot.register_next_step_handler(msg, process_add_match)
+        return
 
-        elif response.status == 0:
-            msg = bot.send_message(chat_id, 'Матч добавлен!')
-            send_welcome(msg)
-            return
+    home_team = splitted_text[0]
+    away_team = splitted_text[1]
+    mth = splitted_text[2]
+    day = splitted_text[3]
+    hour = splitted_text[4]
+    minute = splitted_text[5]
 
+    try:
+        mth = int(mth)
+        day = int(day)
+        hour = int(hour)
+        minute = int(minute)
+        match_date = datetime(2022, mth, day, hour, minute, tzinfo=pytz.timezone('Europe/Moscow'))
+    except ValueError:
+        msg = bot.reply_to(message,
+         '''Неверно указал!\nнапиши матч в формате - "Аргентина Ямайка 11 12 15 00"\nИ следи за чиселками даты!''')
+        bot.register_next_step_handler(msg, process_add_match)
+        return
+
+    response = backend.add_match(home_team, away_team, match_date)
+    if response.status == 1:
+        msg = bot.reply_to(message, 'такой матч уже есть')
+        bot.register_next_step_handler(msg, process_add_match)
+        return
+
+    elif response.status == 0:
+        msg = bot.send_message(chat_id, 'Матч добавлен!')
         send_welcome(msg)
+        return
+
+    send_welcome(msg)
 
 
 # bot.enable_save_next_step_handlers(delay=2)
