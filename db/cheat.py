@@ -21,22 +21,70 @@ engine = create_engine(data_base_uri, echo=True)
 
 from db.tables import Player, Match, Bet
 
+# engine.execute('alter table Player add column payment_cnt INTEGER')
+
 with Session(engine) as session:
-    # session.query(Player) \
-    #     .filter(Player.telegram_id == 46340594) \
-    #     .update(
-    #     {'name': 'Мигаев'}
-    # )
-    # session.commit()
-
-    # session.query(Match).delete()
-    # session.commit()
-    #
-    # session.query(Bet).delete()
-    # session.commit()
-
-    session.query(Match) \
+    # pass
+    session.query(Player) \
+        .filter(Player.telegram_id == 46340594) \
         .update(
-        {'score_home': None, 'score_away': None, 'outcome': None}
+        {'payment_cnt': 1}
     )
+
+    session.query(Player) \
+        .filter(Player.telegram_id == 252970915) \
+        .update(
+        {'payment_cnt': 1}
+    )
+
+    session.query(Player) \
+        .filter(Player.telegram_id == 271533029) \
+        .update(
+        {'payment_cnt': 2}
+    )
+
+    session.query(Player) \
+        .filter(Player.telegram_id == 279075434) \
+        .update(
+        {'payment_cnt': 1}
+    )
+
+    session.query(Player) \
+        .filter(Player.telegram_id == 309401434) \
+        .update(
+        {'payment_cnt': 1}
+    )
+
+    session.query(Player) \
+        .filter(Player.telegram_id == 530006174) \
+        .update(
+        {'payment_cnt': 1}
+    )
+
+    session.query(Player) \
+        .filter(Player.telegram_id == 534584031) \
+        .update(
+        {'payment_cnt': 1}
+    )
+
+    session.query(Player) \
+        .filter(Player.telegram_id == 610565754) \
+        .update(
+        {'payment_cnt': 1}
+    )
+
+    session.query(Player) \
+        .filter(Player.telegram_id == 1291597799) \
+        .update(
+        {'payment_cnt': 1}
+    )
+
+    session.query(Bet) \
+        .filter(Bet.telegram_id == 534584031)\
+        .filter(Bet.match_id == 20)\
+        .update(
+        {'amount': 3000}
+    )
+
     session.commit()
+

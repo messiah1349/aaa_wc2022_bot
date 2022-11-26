@@ -9,7 +9,6 @@ import keyboards as kb
 import print_functions as pf
 from dataclasses import dataclass
 
-
 ROOT_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(ROOT_DIR)
 import lib.utils as ut
@@ -26,6 +25,7 @@ backend = Backend(db_path)
 API_TOKEN = os.environ["AAA_BOT_TOKEN"]
 bot = telebot.TeleBot(API_TOKEN)
 
+
 # print('bot started')
 
 @dataclass
@@ -34,18 +34,17 @@ class ParsedBet:
     away_score: int
     amount: float
 
+
 @bot.message_handler(commands=['rules'])
 def send_rules(message):
     chat_id = message.chat.id
     help_message = """Каждый скидывает вначале по 3к рублей.
-    
-Когда начнется турнир, каждый получает 10000 виртуальных денег. На них делаются ставки на ближайшие матчи, на каждый матч можно поставить сколько угодно денег, но не больше чем у вас осталось. 
 
+Когда начнется турнир, каждый получает 10000 виртуальных денег. На них делаются ставки на ближайшие матчи, на каждый матч можно поставить сколько угодно денег, но не больше чем у вас осталось. 
 Сколько у вас осталось, можно посмотреть на лидерборде. \n
 На каждый матч берем реальные коффиценты. Ставим на исход и на счет.
 - Если угадали исход, то получаете выигрыш согласно кэфам и вашей ставке.
 - Если угадали счет, то еще плюс к этому получаете вашу ставку умноженную на 3.
-
 В конце турнира смотрим у кого больше очков осталось:
 первое место берет 50% всего банка,
 второе - 30%,
@@ -84,7 +83,6 @@ def send_welcome(message):
 
 
 def process_start_menu(message):
-
     chat_id = message.chat.id
     text = message.text
 
@@ -132,6 +130,20 @@ def process_start_menu(message):
         case menu_names.show_finished_matches:
             matches = backend.get_all_matches()
             previous_matches = ut.get_previous_matches(matches)
+            previous_matches = previous_matches[5:]
+            if not previous_matches:
+                bot.send_message(chat_id, "Еще нет матчей")
+                send_welcome(message)
+                return
+            else:
+                markup = kb.make_matches_keyboard(previous_matches)
+                bot.send_message(chat_id, "Выбери матч:", reply_markup=markup)
+                # handle by process_matches function
+                return
+        case menu_names.show_recent_matches:
+            matches = backend.get_all_matches()
+            previous_matches = ut.get_previous_matches(matches)
+            previous_matches = previous_matches[:5]
             if not previous_matches:
                 bot.send_message(chat_id, "Еще нет матчей")
                 send_welcome(message)
@@ -322,6 +334,7 @@ def get_winning_text(winning_row, match_info, home_score: int, away_score: int):
 
     return telegram_id, text
 
+
 def process_refresh_team_names(message, match_id):
     chat_id = message.chat.id
     text = message.text
@@ -388,11 +401,11 @@ def make_bet(message, match_id):
 
     else:
         msg = bot.send_message(chat_id,
-           """Неправильно ввел!!
-введте ставку в формате '1 3 500'
-где первые 2 числа это счет, а последнне - ваша ставка
-или нажмите /start для выхода в меню"""
-           )
+                               """Неправильно ввел!!
+                    введте ставку в формате '1 3 500'
+                    где первые 2 числа это счет, а последнне - ваша ставка
+                    или нажмите /start для выхода в меню"""
+                               )
         bot.register_next_step_handler(msg, make_bet, match_id=match_id)
 
 
@@ -424,7 +437,6 @@ def process_add_user(message):
 
 
 def process_add_match(message):
-
     chat_id = message.chat.id
     text = message.text
 
@@ -435,7 +447,7 @@ def process_add_match(message):
     splitted_text = text.split(" ")
     if len(splitted_text) != 6:
         msg = bot.send_message(chat_id,
-                '''Неверно указал!\nНапиши матч в формате - "Аргентина Ямайка 11 12 15 00"''')
+                               '''Неверно указал!\nНапиши матч в формате - "Аргентина Ямайка 11 12 15 00"''')
         bot.register_next_step_handler(msg, process_add_match)
         return
 
@@ -454,7 +466,7 @@ def process_add_match(message):
         match_date = datetime(2022, mth, day, hour, minute, tzinfo=pytz.timezone('Europe/Moscow'))
     except ValueError:
         msg = bot.reply_to(message,
-         '''Неверно указал!\nнапиши матч в формате - "Аргентина Ямайка 11 12 15 00"\nИ следи за чиселками даты!''')
+                           '''Неверно указал!\nнапиши матч в формате - "Аргентина Ямайка 11 12 15 00"\nИ следи за чиселками даты!''')
         bot.register_next_step_handler(msg, process_add_match)
         return
 
@@ -475,5 +487,3 @@ def process_add_match(message):
 # bot.enable_save_next_step_handlers(delay=2)
 # bot.load_next_step_handlers()
 bot.infinity_polling(none_stop=True)
-
-

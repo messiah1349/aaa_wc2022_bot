@@ -43,6 +43,7 @@ class Player(Base):
     telegram_id = Column(Integer, primary_key=True)
     name = Column(String)
     money = Column(Float)
+    payment_cnt = Column(Integer)
 
 
 class Bet(Base):

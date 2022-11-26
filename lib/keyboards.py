@@ -18,14 +18,29 @@ def make_not_registered_welcome_keyboard():
 
 def make_welcome_keyboard(telegram_id: int):
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-    markup.add(menu_names.show_matches)
-    markup.add(menu_names.show_leaderboard)
-    markup.add(menu_names.show_user_bets)
-    markup.add(menu_names.show_current_user_bets)
-    markup.add(menu_names.show_finished_matches)
+    show_matches_button = types.KeyboardButton(menu_names.show_matches)
+    show_leaderboard_button = types.KeyboardButton(menu_names.show_leaderboard)
+    show_user_bets_button = types.KeyboardButton(menu_names.show_user_bets)
+    show_current_user_bets_button = types.KeyboardButton(menu_names.show_current_user_bets)
+    show_recent_matches_button = types.KeyboardButton(menu_names.show_recent_matches)
+    show_finished_matches_button = types.KeyboardButton(menu_names.show_finished_matches)
+
+    markup.row(show_matches_button, show_leaderboard_button)
+    markup.row(show_user_bets_button, show_current_user_bets_button)
+    markup.row(show_recent_matches_button, show_finished_matches_button)
 
     if telegram_id in admin_lists:
         markup.add(menu_names.add_match)
+
+    # markup = types.ReplyKeyboardMarkup(keyboard=reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
+    # markup.add(menu_names.show_matches)
+    # markup.add(menu_names.show_leaderboard)
+    # markup.add(menu_names.show_user_bets)
+    # markup.add(menu_names.show_current_user_bets)
+    # markup.add(menu_names.show_finished_matches)
+
+    # if telegram_id in admin_lists:
+    #     markup.add(menu_names.add_match)
 
     return markup
 

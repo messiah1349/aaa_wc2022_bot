@@ -110,9 +110,10 @@ class PlayerProcessor(TableProcessor):
         with Session(self._engine) as session:
 
             query = session.query(self.table_model).with_entities(
-                    getattr(self.table_model, 'telegram_id'),
+                     getattr(self.table_model, 'telegram_id'),
                     getattr(self.table_model, 'name'),
-                    getattr(self.table_model, 'money')
+                    getattr(self.table_model, 'money'),
+                    getattr(self.table_model, 'payment_cnt')
             ).order_by(getattr(self.table_model, 'money').desc(), getattr(self.table_model, 'name'))
 
             res = session.execute(query).fetchall()
@@ -372,42 +373,55 @@ class MixedTableProcessor:
     def __init__(self, engine):
         self._engine = engine
 
+    def _get_full_bet_info(self):
+
+        with Session(self._engine) as session:
+            query = session.query(Bet, Match, Player) \
+                .filter(Bet.is_deleted == 0) \
+                .filter(Bet.match_id == Match.id) \
+                .filter(Bet.telegram_id == Player.telegram_id) \
+                .order_by(Match.match_time) \
+                .with_entities(Match.home_team, Match.away_team, Bet.home_prediction_score, Bet.away_prediction_score,
+                       Bet.amount, Bet.date, Player.telegram_id, Match.id.label('match_id'), Player.name,
+                       case(
+                           (Match.outcome == None, -1),
+                           (and_(
+                               (Bet.home_prediction_score == Match.score_home),
+                               (Bet.away_prediction_score == Match.score_away)
+                           ), 2),
+                           (Bet.prediction_outcome == Match.outcome, 1),
+                           else_=0
+                       ).label('winning')
+                    )
+
+            return query
+
+
     def get_user_bets(self, telegram_id: int) -> Response:
         try:
             with Session(self._engine) as session:
-                query = session.query(Bet, Match)\
-                    .filter(Bet.match_id == Match.id)\
-                    .filter(Bet.telegram_id == telegram_id) \
-                    .filter(Bet.is_deleted == 0)\
-                    .order_by(Match.match_time)\
-                    .with_entities(Match.home_team, Match.away_team, Bet.home_prediction_score, Bet.away_prediction_score,
-                                   Bet.amount, Bet.date,
-                                   case(
-                                       (Match.outcome == None, -1),
-                                       (and_(
-                                           (Bet.home_prediction_score == Match.score_home),
-                                           (Bet.away_prediction_score == Match.score_away)
-                                       ), 2),
-                                       (Bet.prediction_outcome == Match.outcome, 1),
-                                       else_=0
-                                   ).label('winning')
-                                   )
+
+                bet_info = self._get_full_bet_info().subquery()
+                query = session.query(bet_info).filter(bet_info.c.telegram_id == telegram_id)
 
                 res = session.execute(query).fetchall()
                 return Response(0, res)
         except Exception as e:
+            print(e)
             return Response(1, "something was wrong")
 
     def get_match_bets(self, match_id: int) -> Response:
         try:
             with Session(self._engine) as session:
-                query = session.query(Bet, Player)\
-                    .filter(Bet.match_id == match_id) \
-                    .filter(Bet.telegram_id == Player.telegram_id) \
-                    .filter(Bet.is_deleted == 0)\
-                    .order_by(Bet.date)\
-                    .with_entities(Player.name, Bet.home_prediction_score, Bet.away_prediction_score,
-                                   Bet.amount, Bet.date)
+                # query = session.query(Bet, Player)\
+                #     .filter(Bet.match_id == match_id) \
+                #     .filter(Bet.telegram_id == Player.telegram_id) \
+                #     .filter(Bet.is_deleted == 0)\
+                #     .order_by(Bet.date)\
+                #     .with_entities(Player.name, Bet.home_prediction_score, Bet.away_prediction_score,
+                #                    Bet.amount, Bet.date)
+                bet_info = self._get_full_bet_info().subquery()
+                query = session.query(bet_info).filter(bet_info.c.match_id == match_id)
 
                 res = session.execute(query).fetchall()
                 return Response(0, res)
@@ -462,10 +476,13 @@ class MixedTableProcessor:
                 .join(aggregate_subquery, Player.telegram_id == aggregate_subquery.c.telegram_id, isouter=True) \
                 .with_entities(
                     Player.telegram_id,
-                    coalesce(INITIAL_USER_MONEY +
-                     aggregate_subquery.c.amount_outcome +
-                     aggregate_subquery.c.predicted_score_outcome -
-                     aggregate_subquery.c.total_bet_amount, INITIAL_USER_MONEY).label('current_money')
+                    coalesce(
+                         INITIAL_USER_MONEY * coalesce(Player.payment_cnt, 1) +
+                         aggregate_subquery.c.amount_outcome +
+                         aggregate_subquery.c.predicted_score_outcome -
+                         aggregate_subquery.c.total_bet_amount,
+                      INITIAL_USER_MONEY * coalesce(Player.payment_cnt, 1)
+                    ).label('current_money')
                 )\
                 .subquery()
 
